@@ -142,7 +142,7 @@ To upload from stdin:
 
     $ cat file | glacier-cmd upload Test --description "Some description" --stdin  --name /path/BetterName
 
-IMPORTANT NOTE: If you're uploading from stdin, and you don't specify a
+IMPORTANT NOTE: If you're uploading from stdin or a pipe, and you don't specify a
 --partsize option, your upload will be limited to 1.3Tb, and the progress
 report will come out every 128Mb. For more details, run:
 
@@ -156,7 +156,8 @@ its file name, its description, or limit the search by region and vault.
 If that is not enough you should use `getarchive` and specify the archive ID of
 the archive you want to retrieve:
 
-    $ TODO: example here
+    $ glacier-cmd download Test eBLl4DbMbZ4YMA7fD9cNacf2z1kGxpYxBqTV4qFVsuzgjuNlKSkWm2rFpw6Gq-bFT6Vt9cUZ1lGqSbtZjtbeh0jYn9tJC-MczQyA3tP6bezYUeN8dGGvqNqT3la79wjRRair1am1JA --outfile filename
+    Read 1 GB of 10 GB (10%). Rate 3.05 MB/s, average 2.71 MB/s, ETA 1:00:00.   
 
 To remove uploaded archive use `rmarchive`. You can currently delete only by
 archive id (notice the use of `--` when the archive ID starts with a dash):
@@ -287,8 +288,7 @@ Usage description(help):
      --no-bookkeeping      If present, overrides either CLI or configuration file
                            options provided for bookkeeping either beforehand or 
                            afterwards
-     --logfile LOGFILE     File to write log messages to. (default: /home/wouter
-                           /.glacier-cmd.log)
+     --logfile LOGFILE     File to write log messages to. (default: ~/.glacier-cmd.log)
      --loglevel {-1,DEBUG,0,INFO,1,WARNING,2,ERROR,3,CRITICAL}
                            Set the lowest level of messages you want to log.
                            (default: DEBUG)
@@ -306,7 +306,7 @@ Short Notification Service (SNS) is Amazon's technology that allows you to be no
 
 If you run `glacier-cmd sns sync` without specifing anything in your configuration file, it will automatically subscribe all your vaults to `aws-glacier-notifications` topic.
 
-    $ glacier.py sns sync                                           
+    $ glacier-cmd sns sync
     +------------+-------------------------------------------------+
     | Vault Name |                    Request Id                   |
     +------------+-------------------------------------------------+

@@ -34,7 +34,7 @@ def output_headers(headers, output):
     if output == 'print':
         table = PrettyTable(["Header", "Value"])
         for row in rows:
-            if len(str(row[1])) < 100:
+            if len(str(row[1])) <= 138:
                 table.add_row(row)
         
         print table
@@ -96,15 +96,16 @@ def output_msg(msg, output, success=True):
     :param success: whether the operation was a success or not.
     :type success: boolean
     """
-    if output == 'print':
-        print msg
-        
-    if output == 'csv':
-        csvwriter = csv.writer(sys.stdout, quoting=csv.QUOTE_ALL)
-        csvwriter.writerow(msg)
-            
-    if output == 'json':
-        print json.dumps(msg)
+    if msg is not None:
+        if output == 'print':
+            print msg
+
+        if output == 'csv':
+            csvwriter = csv.writer(sys.stdout, quoting=csv.QUOTE_ALL)
+            csvwriter.writerow(msg)
+
+        if output == 'json':
+            print json.dumps(msg)
         
     if not success:
         sys.exit(125)
@@ -309,7 +310,8 @@ def upload(args):
                                               args.name, args.partsize, args.uploadid, args.resume)
                     results.append({"Uploaded file": g,
                                     "Created archive with ID": response[0],
-                                    "Archive SHA256 tree hash": response[1]})
+                                    "Archive SHA256 tree hash": response[1],
+                                    "Description": args.description})
             else:
                 raise InputException(
                     "File name given for upload can not be found: %s."% f,
@@ -321,7 +323,8 @@ def upload(args):
         response = glacier.upload(args.vault, None, args.description, args.region, args.stdin,
                                   args.name, args.partsize, args.uploadid, args.resume)
         results = [{"Created archive with ID": response[0],
-                    "Archive SHA256 tree hash": response[1]}]
+                    "Archive SHA256 tree hash": response[1],
+                    "Description": args.description}]
 
     else:
         raise InputException(
@@ -626,7 +629,10 @@ def main():
                        required=False,
                        default=default('output') if default('output') else 'print',
                        choices=['print', 'csv', 'json'],
-                       help='Set how to return results: print to the screen, or as csv resp. json string.')
+                       help='Set how to return results: print to the screen,\
+                             or as csv resp. json string. NOTE: to receive full\
+                             output use csv or json. `print` removes lines\
+                             longer than 138 chars')
 
     # SimpleDB settings
     group = parser.add_argument_group('sdb')
@@ -716,7 +722,7 @@ partsize  MaxArchiveSize
 
 If not given, the smallest possible part size
 will be used when uploading a file, and 128 MB
-when uploading from stdin.''')
+when uploading from stdin or from a FIFO pipe.''')
     parser_upload.add_argument('--description', default=None,
         help='''\
 Description of the file to be uploaded. Use quotes
